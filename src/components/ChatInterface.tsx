@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, History } from 'lucide-react';
+import { Send, History, ExternalLink } from 'lucide-react';
 import { openai, TEEN_PROMPT, PARENT_PROMPT } from '../config/openai';
 import { databases, DATABASE_ID, CHAT_HISTORY_COLLECTION } from '../config/appwrite';
+import { FORM_URLS } from '../config/forms';
 
 type Message = {
     role: 'user' | 'assistant';
@@ -17,14 +18,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ userType, userId }
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [hasCompletedForm, setHasCompletedForm] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    const handleFormCompletion = () => {
+        setHasCompletedForm(true);
+    };
+
     const handleSend = async () => {
         if (!input.trim()) return;
+        if (!hasCompletedForm) {
+            alert('Please complete the form before starting the chat.');
+            return;
+        }
 
         const userMessage: Message = { role: 'user', content: input };
         setMessages(prev => [...prev, userMessage]);
@@ -68,6 +78,38 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ userType, userId }
             setIsLoading(false);
         }
     };
+
+    if (!hasCompletedForm) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-lime-50 to-orange-50">
+                <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+                    <h2 className="text-2xl font-bold mb-6 text-center text-lime-600">
+                        Complete the Form
+                    </h2>
+                    <p className="text-gray-600 mb-6 text-center">
+                        Please complete this brief survey before starting your chat session.
+                    </p>
+                    <div className="space-y-4">
+                        <a
+                            href={FORM_URLS[userType]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full p-4 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition-colors flex items-center justify-center gap-3"
+                        >
+                            Open Form
+                            <ExternalLink className="h-4 w-4" />
+                        </a>
+                        <button
+                            onClick={handleFormCompletion}
+                            className="w-full p-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        >
+                            I've Completed the Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen bg-gradient-to-r from-lime-50 to-orange-50">

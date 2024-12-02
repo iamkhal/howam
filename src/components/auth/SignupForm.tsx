@@ -18,13 +18,11 @@ export const SignupForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             toast.error('Passwords do not match');
             return;
         }
 
-        // Validate password strength
         if (formData.password.length < 8) {
             toast.error('Password must be at least 8 characters long');
             return;
@@ -32,7 +30,7 @@ export const SignupForm: React.FC = () => {
 
         setIsLoading(true);
         try {
-            // Step 1: Create the account
+            // First create the account
             const userAccount = await account.create(
                 ID.unique(),
                 formData.email,
@@ -40,7 +38,10 @@ export const SignupForm: React.FC = () => {
                 formData.name
             );
 
-            // Step 2: Create user document in database
+            // Then create the session
+            await account.createEmailSession(formData.email, formData.password);
+
+            // Finally create the user document
             await databases.createDocument(
                 DATABASE_ID,
                 USERS_COLLECTION,
@@ -52,16 +53,12 @@ export const SignupForm: React.FC = () => {
                     createdAt: new Date().toISOString()
                 }
             );
-
-            // Step 3: Create email session
-            await account.createEmailSession(formData.email, formData.password);
             
             toast.success('Account created successfully!');
             navigate('/user-type');
         } catch (error: any) {
             console.error('Signup error:', error);
             
-            // Provide more specific error messages
             if (error.code === 409) {
                 toast.error('Email already exists. Please use a different email.');
             } else if (error.code === 400) {

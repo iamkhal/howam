@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import { User, Users, ExternalLink } from 'lucide-react';
+import React from 'react';
+import { User, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { FORM_URLS } from '../config/forms';
-import toast from 'react-hot-toast';
 
 type UserTypeSelectionProps = {
     onSelect: (type: 'teen' | 'parent') => void;
@@ -10,22 +8,10 @@ type UserTypeSelectionProps = {
 
 export const UserTypeSelection: React.FC<UserTypeSelectionProps> = ({ onSelect }) => {
     const navigate = useNavigate();
-    const [hasCompletedForm, setHasCompletedForm] = useState(false);
 
     const handleUserTypeSelection = (type: 'teen' | 'parent') => {
-        // Open Google Form in a new window
-        window.open(FORM_URLS[type], '_blank');
-        
-        // Show confirmation dialog
-        const confirmed = window.confirm('Have you completed the form? Click OK only if you have submitted the form.');
-        
-        if (confirmed) {
-            setHasCompletedForm(true);
-            onSelect(type);
-            navigate('/chat');
-        } else {
-            toast.error('Please complete the form before continuing');
-        }
+        onSelect(type);
+        navigate('/chat');
     };
 
     return (
@@ -35,7 +21,7 @@ export const UserTypeSelection: React.FC<UserTypeSelectionProps> = ({ onSelect }
                     Choose Your Category
                 </h2>
                 <p className="text-gray-600 mb-6 text-center">
-                    Please select your category and complete a brief survey before starting.
+                    Select your category to begin your chat session.
                 </p>
                 <div className="space-y-4">
                     <button
@@ -44,7 +30,6 @@ export const UserTypeSelection: React.FC<UserTypeSelectionProps> = ({ onSelect }
                     >
                         <User className="h-6 w-6" />
                         I'm a Teen
-                        <ExternalLink className="h-4 w-4 ml-2" />
                     </button>
                     <button
                         onClick={() => handleUserTypeSelection('parent')}
@@ -52,12 +37,8 @@ export const UserTypeSelection: React.FC<UserTypeSelectionProps> = ({ onSelect }
                     >
                         <Users className="h-6 w-6" />
                         I'm a Parent
-                        <ExternalLink className="h-4 w-4 ml-2" />
                     </button>
                 </div>
-                <p className="mt-6 text-sm text-gray-500 text-center">
-                    Note: You'll need to complete a brief survey before accessing the chat.
-                </p>
             </div>
         </div>
     );
