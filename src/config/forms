@@ -1,0 +1,4 @@
+export const FORM_URLS = {
+    teen: 'https://forms.gle/2SaNz4bLDPjQTVgF7',
+    parent: 'https://forms.gle/hTWNHtiTHoLmdSmE6'
+};
